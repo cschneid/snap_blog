@@ -7,3 +7,5 @@
 
   <br/>
 </allPosts>
+
+<newPostForm></newPostForm>

@@ -47,7 +47,10 @@ app = makeSnaplet "app" "An snaplet example application." Nothing $ do
     addRoutes routes
     addAuthSplices h auth
 
-    let config = mempty { hcInterpretedSplices = [("allPosts", Post.allPosts)]}
+    let config = mempty { hcInterpretedSplices = [("allPosts", Post.allPosts),
+                                                  ("newPostForm", Post.newPostForm)
+                                                 ]
+    }
     addConfig h config
 
     return $ App h s a d

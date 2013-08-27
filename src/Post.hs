@@ -13,7 +13,13 @@ import Control.Monad
 import Control.Monad.Trans
 import Heist
 import Snap.Core
+import qualified  Text.XmlHtml as X
 import Control.Lens
+
+import Text.Blaze.Html5 (Html, (!))
+import qualified Text.Blaze.Html5 as H
+import qualified Text.Blaze.Html5.Attributes as A
+import Text.Blaze.Renderer.XmlHtml
 ------------------------------------------------------------------------------
 import Application
 import Database
@@ -35,3 +41,11 @@ allPosts = do
   where
     results :: Handler App App [P.Entity Post]
     results = with db $ runPersist $ P.selectList [] []
+
+newPostForm ::  I.Splice AppHandler
+newPostForm = return . renderHtmlNodes $
+    H.form $ do
+      H.label "Post Content:"
+      H.input ! A.name "content"
+
+
