@@ -22,11 +22,13 @@ import           Snap.Util.FileServe
 ------------------------------------------------------------------------------
 import           Application
 import qualified Auth
+import qualified Post
 
 ------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, Handler App App ())]
 routes = Auth.routes ++
+         Post.routes ++
          [("",          serveDirectory "static")]
 
 
