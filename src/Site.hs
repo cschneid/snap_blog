@@ -9,14 +9,9 @@ module Site
   ) where
 
 ------------------------------------------------------------------------------
-import           Control.Applicative
 import           Control.Lens (view)
 import           Data.ByteString (ByteString)
-import           Data.Maybe
 import           Database.Persist.Sql
-import           Heist
-import qualified Heist.Interpreted as I
-import           Snap.Core
 import           Snap.Snaplet
 import           Snap.Snaplet.Auth
 import           Snap.Snaplet.Auth.Backends.Persistent
@@ -24,50 +19,16 @@ import           Snap.Snaplet.Heist
 import           Snap.Snaplet.Persistent
 import           Snap.Snaplet.Session.Backends.CookieSession
 import           Snap.Util.FileServe
-import qualified Data.Text as T
 ------------------------------------------------------------------------------
 import           Application
-
-
-------------------------------------------------------------------------------
--- | Render login form
-handleLogin :: Maybe T.Text -> Handler App (AuthManager App) ()
-handleLogin authError = heistLocal (I.bindSplices errs) $ render "login"
-  where
-    errs = [("loginError", I.textSplice c) | c <- maybeToList authError]
-
-
-------------------------------------------------------------------------------
--- | Handle login submit
-handleLoginSubmit :: Handler App (AuthManager App) ()
-handleLoginSubmit =
-    loginUser "login" "password" Nothing
-              (\_ -> handleLogin err) (redirect "/")
-  where
-    err = Just "Unknown user or password"
-
-
-------------------------------------------------------------------------------
--- | Logs out and redirects the user to the site index.
-handleLogout :: Handler App (AuthManager App) ()
-handleLogout = logout >> redirect "/"
-
-
-------------------------------------------------------------------------------
--- | Handle new user form submit
-handleNewUser :: Handler App (AuthManager App) ()
-handleNewUser = method GET handleForm <|> method POST handleFormSubmit
-  where
-    handleForm = render "new_user"
-    handleFormSubmit = registerUser "login" "password" >> redirect "/"
-
+import qualified Auth
 
 ------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, Handler App App ())]
-routes = [ ("/login",    with auth handleLoginSubmit)
-         , ("/logout",   with auth handleLogout)
-         , ("/new_user", with auth handleNewUser)
+routes = [ ("/login",    with auth Auth.handleLoginSubmit)
+         , ("/logout",   with auth Auth.handleLogout)
+         , ("/new_user", with auth Auth.handleNewUser)
          , ("",          serveDirectory "static")
          ]
 
