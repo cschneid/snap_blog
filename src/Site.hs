@@ -26,11 +26,8 @@ import qualified Auth
 ------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, Handler App App ())]
-routes = [ ("/login",    with auth Auth.handleLoginSubmit)
-         , ("/logout",   with auth Auth.handleLogout)
-         , ("/new_user", with auth Auth.handleNewUser)
-         , ("",          serveDirectory "static")
-         ]
+routes = Auth.routes ++
+         [("",          serveDirectory "static")]
 
 
 ------------------------------------------------------------------------------

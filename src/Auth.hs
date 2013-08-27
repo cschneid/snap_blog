@@ -7,14 +7,21 @@ import           Snap.Core
 import           Snap.Snaplet
 import           Snap.Snaplet.Auth
 import           Snap.Snaplet.Heist
-import           Heist
 import qualified Heist.Interpreted as I
 import qualified Data.Text as T
 import           Data.Maybe
+import           Data.ByteString (ByteString)
 ------------------------------------------------------------------------------
 import Application
 
 ------------------------------------------------------------------------------
+
+routes :: [(ByteString, Handler App App ())]
+routes = [ ("/login",    with auth Auth.handleLoginSubmit)
+         , ("/logout",   with auth Auth.handleLogout)
+         , ("/new_user", with auth Auth.handleNewUser)
+         ]
+
 -- | Render login form
 handleLogin :: Maybe T.Text -> Handler App (AuthManager App) ()
 handleLogin authError = heistLocal (I.bindSplices errs) $ render "login"
