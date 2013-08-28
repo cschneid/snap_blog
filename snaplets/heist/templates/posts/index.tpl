@@ -1,11 +1,12 @@
 <h1>Post Index</h1>
 
 <allPosts>
-  <post>
-    <postContent />
-  </post>
+  <postContent />
 
   <br/>
 </allPosts>
 
-<newPostForm></newPostForm>
+<bind tag="content_value"></bind>
+<bind tag="form_action">/posts</bind>
+<apply template="form"/>
+

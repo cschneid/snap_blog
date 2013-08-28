@@ -3,10 +3,12 @@
 module Post where
 
 import           Data.ByteString (ByteString)
+import qualified Data.ByteString as BS
 import           Snap.Snaplet.Heist
 import           Snap.Snaplet
 import qualified Heist.Interpreted as I
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as TE
 import qualified Database.Persist as P
 import           Snap.Snaplet.Persistent
 import Control.Monad
@@ -25,27 +27,28 @@ import Application
 import Database
 
 routes :: [(ByteString, Handler App App ())]
-routes = [ ("/posts", Post.postsHandler)
-         ]
+routes = [ ("/posts", method GET Post.postsHandler)
+         , ("/posts", method POST Post.createPostHandler)]
 
-postsHandler :: Handler App App ()
+postsHandler :: AppHandler ()
 postsHandler = render "posts/index"
 
-postSplice :: P.Entity Post -> I.Splice (Handler App App)
+createPostHandler :: AppHandler ()
+createPostHandler = do
+  (Just content) <- getPostParam "content"
+  with db $ runPersist $ P.insert (Post $ convertedContent content)
+  render "posts/index"
+  where
+    convertedContent = TE.decodeUtf8
+
+postSplice :: P.Entity Post -> I.Splice (AppHandler)
 postSplice (P.Entity postID post) = I.runChildrenWithText [("postContent", postContent post)]
 
-allPosts :: I.Splice (Handler App App)
+allPosts :: I.Splice (AppHandler)
 allPosts = do
   posts <- lift results
   I.mapSplices postSplice posts
   where
     results :: Handler App App [P.Entity Post]
     results = with db $ runPersist $ P.selectList [] []
-
-newPostForm ::  I.Splice AppHandler
-newPostForm = return . renderHtmlNodes $
-    H.form $ do
-      H.label "Post Content:"
-      H.input ! A.name "content"
-
 
